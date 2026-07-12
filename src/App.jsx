@@ -51,7 +51,7 @@ function App() {
 
         // 3. Salva individualmente no localStorage com uma chave única (ex: usuario_171829384)
         // Usamos JSON.stringify porque o localStorage só aceita texto
-        localStorage.setItem(`usuario_${novoUsuario.id}`, JSON.stringify(novoUsuario));
+        localStorage.setItem(`project-react-2_usuario_${novoUsuario.id}`, JSON.stringify(novoUsuario));
 
         // 4. Atualiza a lista na tela adicionando o novo usuário
         setResultado((listaAtual) => [...listaAtual, novoUsuario]);
