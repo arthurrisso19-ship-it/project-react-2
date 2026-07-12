@@ -7,16 +7,15 @@ function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
+    const PREFIXO = 'project-react-2_usuario_';
     
-    // Carrega todos os usuários individuais que já existem no localStorage ao iniciar a página
     const [resultado, setResultado] = useState(() => {
         const usuariosCarregados = [];
         
         for (let i = 0; i < localStorage.length; i++) {
             const chave = localStorage.key(i);
             
-            // Filtra para pegar apenas as chaves que começam com 'usuario_'
-            if (chave.startsWith('usuario_')) {
+            if (chave.startsWith(PREFIXO)){
                 const dadosTexto = localStorage.getItem(chave);
                 try {
                     usuariosCarregados.push(JSON.parse(dadosTexto));
@@ -33,15 +32,12 @@ function App() {
 
         const emailFormatado = email.trim().toLowerCase();
 
-        // 1. Verifica se o e-mail já existe no estado atual do React
         const existe = resultado.some(u => u.email?.trim().toLowerCase() === emailFormatado);
 
         if (existe) {
             alert('Este e-mail já está cadastrado!');
             return; 
         }
-
-        // 2. Cria o novo objeto do usuário
         const novoUsuario = {
             id: Date.now(),
             name: name.trim(),
@@ -49,14 +45,13 @@ function App() {
             age: age
         };
 
-        // 3. Salva individualmente no localStorage com uma chave única (ex: usuario_171829384)
-        // Usamos JSON.stringify porque o localStorage só aceita texto
-        localStorage.setItem(`project-react-2_usuario_${novoUsuario.id}`, JSON.stringify(novoUsuario));
+ 
+      localStorage.setItem(`${PREFIXO}${novoUsuario.id}`, JSON.stringify(novoUsuario))
 
-        // 4. Atualiza a lista na tela adicionando o novo usuário
+  
         setResultado((listaAtual) => [...listaAtual, novoUsuario]);
 
-        // Limpa os inputs do formulário
+
         setName('');
         setEmail('');
         setAge('');
