@@ -1,32 +1,28 @@
-import { useState, useEffect } from 'react';
+
 import './App.css'
+import { useState, useEffect } from 'react';
+
 function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
     const [resultado, setResultado] = useState([]);
-    const PREFIXO = 'project-react-2_usuario_';
     
+    // Uma única chave centralizada para todo o projeto
+    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios';
+
+    // 1. CARREGA OS DADOS APENAS UMA VEZ AO ABRIR A PÁGINA
     useEffect(() => {
-        if (typeof window !== 'undefined' && window.localStorage) {
-            const usuariosCarregados = [];
-            
-            for (let i = 0; i < localStorage.length; i++) {
-                const chave = localStorage.key(i);
-                
-                if (chave && chave.startsWith(PREFIXO)) {
-                    const dadosTexto = localStorage.getItem(chave);
-                    try {
-                        if (dadosTexto) {
-                            usuariosCarregados.push(JSON.parse(dadosTexto));
-                        }
-                    } catch (e) {
-                        console.error("Erro ao ler dado do localStorage", e);
-                    }
+        try {
+            const dadosTexto = localStorage.getItem(CHAVE_LOCAL_STORAGE);
+            if (dadosTexto) {
+                const usuariosCarregados = JSON.parse(dadosTexto);
+                if (Array.isArray(usuariosCarregados)) {
+                    setResultado(usuariosCarregados);
                 }
-            } 
-            
-            setResultado(usuariosCarregados);
+            }
+        } catch (e) {
+            console.error("Erro ao carregar dados iniciais:", e);
         }
     }, []);
 
@@ -48,8 +44,17 @@ function App() {
             age: age
         };
 
-        localStorage.setItem(`${PREFIXO}${novoUsuario.id}`, JSON.stringify(novoUsuario));
-        setResultado((listaAtual) => [...listaAtual, novoUsuario]);
+        // Cria a nova lista atualizada
+        const novaLista = [...resultado, novoUsuario];
+
+        // 2. SALVA A LISTA ATUALIZADA COMPLETA NO LOCALSTORAGE
+        try {
+            localStorage.setItem(CHAVE_LOCAL_STORAGE, JSON.stringify(novaLista));
+            setResultado(novaLista); // Atualiza o estado da tela
+        } catch (e) {
+            console.error("Erro ao salvar no localStorage:", e);
+            alert("Não foi possível salvar os dados no navegador.");
+        }
 
         setName('');
         setEmail('');
