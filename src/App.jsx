@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import './App.css'
 
-// Chave imutável globalizada
 const CHAVE_PROJETO = 'project_react_2_lista_usuarios_final';
 
 export default function App() {
@@ -9,7 +7,6 @@ export default function App() {
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
 
-    // Busca o dado usando JS puro no instante zero da execução
     const [resultado, setResultado] = useState(() => {
         try {
             const salvos = window.localStorage.getItem(CHAVE_PROJETO);
@@ -18,13 +15,16 @@ export default function App() {
                 if (Array.isArray(convertidos)) return convertidos;
             }
         } catch (err) {
-            console.error("Falha nativa de leitura:", err);
+            console.error("Falha na leitura:", err);
         }
         return [];
     });
 
-    const onSubmit = (e) => {
-        e.preventDefault();
+    const lidarComCadastro = () => {
+        if (!name.trim() || !email.trim() || !age) {
+            alert('Por favor, preencha todos os campos!');
+            return;
+        }
 
         const emailFormatado = email.trim().toLowerCase();
         const existe = resultado.some(u => u.email?.trim().toLowerCase() === emailFormatado);
@@ -43,13 +43,12 @@ export default function App() {
 
         const novaLista = [...resultado, novoUsuario];
 
-        // GRAVAÇÃO FORÇADA DIRETAMENTE NA JANELA DO NAVEGADOR
         try {
             window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
-            // Sincroniza o estado do React APENAS depois que o navegador confirmou o salvamento
             setResultado(novaLista);
+            alert("Usuário salvo no navegador com sucesso!");
         } catch (err) {
-            alert("O navegador impediu a gravação de dados locais.");
+            console.error(err);
         }
 
         setName('');
@@ -59,8 +58,8 @@ export default function App() {
 
     return (
         <>
-            <h1>Cadastro de Usuários</h1>
-            <form onSubmit={onSubmit} className='hi'>
+            <h1>Cadastro de Usuários - Versão Nova</h1>
+            <div className='hi'>
                 <div className='oi'>
                     <input
                         className='p'
@@ -92,10 +91,11 @@ export default function App() {
                     />
                 </div>
 
+          
                 <div className='but'>
-                    <button type='submit'>Cadastrar</button>
+                    <button type='button' onClick={lidarComCadastro}>Cadastrar</button>
                 </div>
-            </form>
+            </div>
             
             <ol>
                 {resultado.map((item) => (
