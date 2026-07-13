@@ -1,22 +1,24 @@
 import { useState } from 'react';
 import './App.css'
-function App() {
+
+// Chave imutável globalizada
+const CHAVE_PROJETO = 'project_react_2_lista_usuarios_final';
+
+export default function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
-    
-    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios_v3';
+
+    // Busca o dado usando JS puro no instante zero da execução
     const [resultado, setResultado] = useState(() => {
         try {
-            const dadosTexto = localStorage.getItem(CHAVE_LOCAL_STORAGE);
-            if (dadosTexto) {
-                const usuariosCarregados = JSON.parse(dadosTexto);
-                if (Array.isArray(usuariosCarregados)) {
-                    return usuariosCarregados;
-                }
+            const salvos = window.localStorage.getItem(CHAVE_PROJETO);
+            if (salvos) {
+                const convertidos = JSON.parse(salvos);
+                if (Array.isArray(convertidos)) return convertidos;
             }
-        } catch (e) {
-            console.error("Erro ao carregar dados iniciais:", e);
+        } catch (err) {
+            console.error("Falha nativa de leitura:", err);
         }
         return [];
     });
@@ -33,7 +35,7 @@ function App() {
         }
         
         const novoUsuario = {
-            id: Date.now(),
+            id: Number(Date.now()),
             name: name.trim(),
             email: email.trim(),
             age: age
@@ -41,12 +43,13 @@ function App() {
 
         const novaLista = [...resultado, novoUsuario];
 
-
+        // GRAVAÇÃO FORÇADA DIRETAMENTE NA JANELA DO NAVEGADOR
         try {
-            localStorage.setItem(CHAVE_LOCAL_STORAGE, JSON.stringify(novaLista));
+            window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
+            // Sincroniza o estado do React APENAS depois que o navegador confirmou o salvamento
             setResultado(novaLista);
-        } catch (e) {
-            console.error("Erro ao salvar no localStorage:", e);
+        } catch (err) {
+            alert("O navegador impediu a gravação de dados locais.");
         }
 
         setName('');
@@ -108,5 +111,3 @@ function App() {
         </>
     );
 }
-
-export default App;
