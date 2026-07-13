@@ -1,29 +1,25 @@
-
+import { useState } from 'react';
 import './App.css'
-import { useState, useEffect } from 'react';
-
 function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
-    const [resultado, setResultado] = useState([]);
     
-    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios_v2';
-
-  
-    useEffect(() => {
+    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios_v3';
+    const [resultado, setResultado] = useState(() => {
         try {
             const dadosTexto = localStorage.getItem(CHAVE_LOCAL_STORAGE);
             if (dadosTexto) {
                 const usuariosCarregados = JSON.parse(dadosTexto);
                 if (Array.isArray(usuariosCarregados)) {
-                    setResultado(usuariosCarregados);
+                    return usuariosCarregados;
                 }
             }
         } catch (e) {
             console.error("Erro ao carregar dados iniciais:", e);
         }
-    }, []);
+        return [];
+    });
 
     const onSubmit = (e) => {
         e.preventDefault();
@@ -43,14 +39,14 @@ function App() {
             age: age
         };
 
-    
         const novaLista = [...resultado, novoUsuario];
+
+
         try {
             localStorage.setItem(CHAVE_LOCAL_STORAGE, JSON.stringify(novaLista));
-            setResultado(novaLista); 
+            setResultado(novaLista);
         } catch (e) {
             console.error("Erro ao salvar no localStorage:", e);
-            alert("Não foi possível salvar os dados no navegador.");
         }
 
         setName('');
