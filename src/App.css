@@ -53,3 +53,7 @@ ol {
    border: 2.5px solid white;
     border-radius: 0.4rem
 }
+.button-remover {
+  font-size: small;
+  size: medium;
+}

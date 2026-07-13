@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './App.css'
+import './App.css';
 
 const CHAVE_PROJETO = 'project_react_2_lista_usuarios_final';
 
@@ -8,6 +8,7 @@ export default function App() {
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
 
+    // Estado inicial lendo do localStorage
     const [resultado, setResultado] = useState(() => {
         try {
             const salvos = window.localStorage.getItem(CHAVE_PROJETO);
@@ -21,9 +22,12 @@ export default function App() {
         return [];
     });
 
-    const lidarComCadastro = () => {
-        if (!name.trim() || !email.trim() || !age) {
-            alert('Por favor, preencha todos os campos!');
+    // FUNÇÃO PARA CADASTRAR USUÁRIO
+    const handleCadastrar = (e) => {
+        e.preventDefault(); // Evita recarregar a página se usar form
+
+        if (!name || !email || !age) {
+            console.log("Preencha todos os campos!");
             return;
         }
 
@@ -31,12 +35,12 @@ export default function App() {
         const existe = resultado.some(u => u.email?.trim().toLowerCase() === emailFormatado);
 
         if (existe) {
-            alert('Este e-mail já está cadastrado!');
-            return; 
+            console.log('Este e-mail já está cadastrado!');
+            return;
         }
-        
+
         const novoUsuario = {
-            id: Number(Date.now()),
+            id: Number(Date.now()), // Gera um ID único numérico
             name: name.trim(),
             email: email.trim(),
             age: age
@@ -47,7 +51,7 @@ export default function App() {
         try {
             window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
             setResultado(novaLista);
-            alert("Usuário salvo no navegador com sucesso!");
+            console.log("Usuário salvo no navegador com sucesso!");
         } catch (err) {
             console.error(err);
         }
@@ -55,6 +59,17 @@ export default function App() {
         setName('');
         setEmail('');
         setAge('');
+    };
+
+    // FUNÇÃO PARA REMOVER UM USUÁRIO ESPECÍFICO PELO ID
+    const handleRemover = (idParaRemover) => {
+        // Filtra mantendo apenas os usuários com ID diferente do selecionado
+        const novaLista = resultado.filter(usuario => usuario.id !== idParaRemover);
+        
+        // Atualiza o estado e salva de volta no localStorage
+        setResultado(novaLista);
+        window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
+        console.log(`Usuário com ID ${idParaRemover} removido com sucesso!`);
     };
 
     return (
@@ -92,16 +107,25 @@ export default function App() {
                     />
                 </div>
 
-          
                 <div className='but'>
-                    <button type='button' onClick={lidarComCadastro}>Cadastrar</button>
+                    {/* Vinculado à função de cadastro */}
+                    <button type='button' onClick={handleCadastrar}>Cadastrar</button>
                 </div>
             </div>
             
             <ol>
                 {resultado.map((item) => (
-                    <li key={item.id}>
+                    // IDs no HTML não devem ser repetidos, por isso usei o item.id dinâmico
+                    <li id={`user-${item.id}`} key={item.id}>
                         {item.name} - {item.email} - {item.age}
+                        {/* Botão de remover fica individual dentro de cada linha da lista */}
+                        <button 
+                            type='button' 
+                            className='button-remover'
+                            onClick={() => handleRemover(item.id)}
+                        >
+                            Remover
+                        </button>
                     </li>
                 ))}
             </ol>
