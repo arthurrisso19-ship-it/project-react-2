@@ -8,10 +8,9 @@ function App() {
     const [age, setAge] = useState('');
     const [resultado, setResultado] = useState([]);
     
-    // Uma única chave centralizada para todo o projeto
-    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios';
+    const CHAVE_LOCAL_STORAGE = 'project_react_2_lista_usuarios_v2';
 
-    // 1. CARREGA OS DADOS APENAS UMA VEZ AO ABRIR A PÁGINA
+  
     useEffect(() => {
         try {
             const dadosTexto = localStorage.getItem(CHAVE_LOCAL_STORAGE);
@@ -44,13 +43,11 @@ function App() {
             age: age
         };
 
-        // Cria a nova lista atualizada
+    
         const novaLista = [...resultado, novoUsuario];
-
-        // 2. SALVA A LISTA ATUALIZADA COMPLETA NO LOCALSTORAGE
         try {
             localStorage.setItem(CHAVE_LOCAL_STORAGE, JSON.stringify(novaLista));
-            setResultado(novaLista); // Atualiza o estado da tela
+            setResultado(novaLista); 
         } catch (e) {
             console.error("Erro ao salvar no localStorage:", e);
             alert("Não foi possível salvar os dados no navegador.");
