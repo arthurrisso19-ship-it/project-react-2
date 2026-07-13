@@ -1,43 +1,46 @@
-
-import './App.css'
-
 import { useState, useEffect } from 'react';
-
+import './App.css'
 function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
+    const [resultado, setResultado] = useState([]);
     const PREFIXO = 'project-react-2_usuario_';
     
-    const [resultado, setResultado] = useState(() => {
-        const usuariosCarregados = [];
-        
-        for (let i = 0; i < localStorage.length; i++) {
-            const chave = localStorage.key(i);
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.localStorage) {
+            const usuariosCarregados = [];
             
-            if (chave.startsWith(PREFIXO)){
-                const dadosTexto = localStorage.getItem(chave);
-                try {
-                    usuariosCarregados.push(JSON.parse(dadosTexto));
-                } catch (e) {
-                    console.error("Erro ao ler dado do localStorage", e);
+            for (let i = 0; i < localStorage.length; i++) {
+                const chave = localStorage.key(i);
+                
+                if (chave && chave.startsWith(PREFIXO)) {
+                    const dadosTexto = localStorage.getItem(chave);
+                    try {
+                        if (dadosTexto) {
+                            usuariosCarregados.push(JSON.parse(dadosTexto));
+                        }
+                    } catch (e) {
+                        console.error("Erro ao ler dado do localStorage", e);
+                    }
                 }
-            }
+            } 
+            
+            setResultado(usuariosCarregados);
         }
-        return usuariosCarregados;
-    });
+    }, []);
 
     const onSubmit = (e) => {
         e.preventDefault();
 
         const emailFormatado = email.trim().toLowerCase();
-
         const existe = resultado.some(u => u.email?.trim().toLowerCase() === emailFormatado);
 
         if (existe) {
             alert('Este e-mail já está cadastrado!');
             return; 
         }
+        
         const novoUsuario = {
             id: Date.now(),
             name: name.trim(),
@@ -45,12 +48,8 @@ function App() {
             age: age
         };
 
- 
-      localStorage.setItem(`${PREFIXO}${novoUsuario.id}`, JSON.stringify(novoUsuario))
-
-  
+        localStorage.setItem(`${PREFIXO}${novoUsuario.id}`, JSON.stringify(novoUsuario));
         setResultado((listaAtual) => [...listaAtual, novoUsuario]);
-
 
         setName('');
         setEmail('');
@@ -111,4 +110,5 @@ function App() {
         </>
     );
 }
+
 export default App;
