@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './App.css'
 
 const CHAVE_PROJETO = 'project_react_2_lista_usuarios_final';
 
@@ -58,7 +59,7 @@ export default function App() {
 
     return (
         <>
-            <h1>Cadastro de Usuários - Versão Nova</h1>
+            <h1>Cadastro de Usuários</h1>
             <div className='hi'>
                 <div className='oi'>
                     <input
