@@ -7,6 +7,10 @@ export default function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
+    const [isValid, setIsValid] = useState(true);
+
+    // Regex para validação de e-mail
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
     // Estado inicial lendo do localStorage
     const [resultado, setResultado] = useState(() => {
@@ -22,20 +26,40 @@ export default function App() {
         return [];
     });
 
+    // Controla a digitação do e-mail e valida em tempo real
+    const handleChange = (e) => {
+        const value = e.target.value;
+        setEmail(value);
+        if (value === '') {
+            setIsValid(true);
+        } else {
+            setIsValid(emailRegex.test(value));
+        }
+    };
+
     // FUNÇÃO PARA CADASTRAR USUÁRIO
     const handleCadastrar = (e) => {
-        e.preventDefault(); // Evita recarregar a página se usar form
+        e.preventDefault(); // Impede o envio do formulário se houver erros
 
-        if (!name || !email || !age) {
-            console.log("Preencha todos os campos!");
-            return;
+        // 1. Verifica campos vazios (Adicionado o 'return' que faltava aqui)
+        if (!name.trim() || !email.trim() || !age.trim()) {
+            alert(`Por favor, preencha todos os campos!`);
+            return; 
         }
 
+        // 2. Valida o formato do e-mail com o Regex antes de cadastrar
+        const emailValido = emailRegex.test(email);
+        if (!emailValido) {
+            setIsValid(false);
+            alert('Cadastro barrado: E-mail inválido!');
+            return; // Bloqueia o cadastro aqui
+        }
+        
         const emailFormatado = email.trim().toLowerCase();
         const existe = resultado.some(u => u.email?.trim().toLowerCase() === emailFormatado);
 
         if (existe) {
-            console.log('Este e-mail já está cadastrado!');
+            alert('Este e-mail já está cadastrado!');
             return;
         }
 
@@ -51,31 +75,33 @@ export default function App() {
         try {
             window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
             setResultado(novaLista);
-            console.log("Usuário salvo no navegador com sucesso!");
+            alert(`Cadastro concluído com sucesso!`);
         } catch (err) {
             console.error(err);
         }
 
+        // Limpa os campos
         setName('');
         setEmail('');
         setAge('');
+        setIsValid(true);
     };
 
     // FUNÇÃO PARA REMOVER UM USUÁRIO ESPECÍFICO PELO ID
     const handleRemover = (idParaRemover) => {
-        // Filtra mantendo apenas os usuários com ID diferente do selecionado
         const novaLista = resultado.filter(usuario => usuario.id !== idParaRemover);
-        
-        // Atualiza o estado e salva de volta no localStorage
         setResultado(novaLista);
         window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
-        console.log(`Usuário com ID ${idParaRemover} removido com sucesso!`);
+        alert(`Usuário com ID ${idParaRemover} removido com sucesso!`);
     };
+      const botaoDesabilitado = !name.trim() || !email.trim() || !age.trim() || !isValid;
+
 
     return (
         <>
             <h1>Cadastro de Usuários</h1>
-            <div className='hi'>
+            {/* Transformado a div externa em <form> para gerenciar melhor o comportamento do botão */}
+            <form onSubmit={handleCadastrar} className='hi'>
                 <div className='oi'>
                     <input
                         className='p'
@@ -88,13 +114,14 @@ export default function App() {
                 </div>
                 <div className='oi'>
                     <input
-                        type="email"
+                        type="text" 
                         className='p'
                         placeholder='digite seu email aqui'
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={handleChange}
                         required
                     />
+                    {!isValid && <p style={{ color: 'red', fontSize: '14px', margin: '5px 0 0 0' }}>Por favor, insira um endereço de email válido.</p>}
                 </div>
                 <div className='oi'>
                     <input
@@ -108,17 +135,15 @@ export default function App() {
                 </div>
 
                 <div className='but'>
-                    {/* Vinculado à função de cadastro */}
-                    <button type='button' onClick={handleCadastrar}>Cadastrar</button>
+                    {/* Mudado o tipo para 'submit' para acionar o onSubmit do formulário */}
+                    <button type='submit' disabled={botaoDesabilitado}>Cadastrar</button> 
                 </div>
-            </div>
+            </form>
             
             <ol>
                 {resultado.map((item) => (
-                    // IDs no HTML não devem ser repetidos, por isso usei o item.id dinâmico
                     <li id={`user-${item.id}`} key={item.id}>
-                        {item.name} - {item.email} - {item.age}
-                        {/* Botão de remover fica individual dentro de cada linha da lista */}
+                        {item.name} - {item.email} - {item.age} anos
                         <button 
                             type='button' 
                             className='button-remover'
