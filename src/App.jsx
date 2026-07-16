@@ -7,12 +7,12 @@ export default function App() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
-    const [isValid, setIsValid] = useState(true);
+    const [isEmailValid, setIsEmailValid] = useState(true);
+    const [isNameValid, setIsNameValid] = useState(true);
 
-    // Regex para validação de e-mail
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-
-    // Estado inicial lendo do localStorage
+    // /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const nameregex = /^[a-zA-ZÀ-ÿ\s]{2,30}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/;
     const [resultado, setResultado] = useState(() => {
         try {
             const salvos = window.localStorage.getItem(CHAVE_PROJETO);
@@ -27,18 +27,28 @@ export default function App() {
     });
 
     // Controla a digitação do e-mail e valida em tempo real
-    const handleChange = (e) => {
+    const handleEmailChange = (e) => {
         const value = e.target.value;
         setEmail(value);
         if (value === '') {
-            setIsValid(true);
+            setIsEmailValid(true);
         } else {
-            setIsValid(emailRegex.test(value));
+            setIsEmailValid(emailRegex.test(value.trim()));
+        }
+    };
+       const handleNameChange = (e) => {
+        const value = e.target.value;
+        setName(value);
+        if (value === '') {
+            setIsNameValid(true);
+        } else {
+            setIsNameValid(nameregex.test(value.trim()));
         }
     };
 
     // FUNÇÃO PARA CADASTRAR USUÁRIO
     const handleCadastrar = (e) => {
+
         e.preventDefault(); // Impede o envio do formulário se houver erros
 
         // 1. Verifica campos vazios (Adicionado o 'return' que faltava aqui)
@@ -46,11 +56,18 @@ export default function App() {
             alert(`Por favor, preencha todos os campos!`);
             return; 
         }
+        const nomevalido = nameregex.test(name);
+        if (!nomevalido) {
+            setIsNameValid(false)
+            alert('Cadastro barrado: O nome deve conter no mínimo 2 letras e no máximo 30 letras!');
+            return;
+        }
+
 
         // 2. Valida o formato do e-mail com o Regex antes de cadastrar
         const emailValido = emailRegex.test(email);
         if (!emailValido) {
-            setIsValid(false);
+            setIsEmailValid(false);
             alert('Cadastro barrado: E-mail inválido!');
             return; // Bloqueia o cadastro aqui
         }
@@ -80,11 +97,11 @@ export default function App() {
             console.error(err);
         }
 
-        // Limpa os campos
         setName('');
         setEmail('');
         setAge('');
-        setIsValid(true);
+        setIsNameValid(true);
+        setIsEmailValid(true);
     };
 
     // FUNÇÃO PARA REMOVER UM USUÁRIO ESPECÍFICO PELO ID
@@ -94,9 +111,7 @@ export default function App() {
         window.localStorage.setItem(CHAVE_PROJETO, JSON.stringify(novaLista));
         alert(`Usuário com ID ${idParaRemover} removido com sucesso!`);
     };
-      const botaoDesabilitado = !name.trim() || !email.trim() || !age.trim() || !isValid;
-
-
+      const botaoDesabilitado = !name.trim() || !email.trim() || !age.trim() || !isNameValid || !isEmailValid;
     return (
         <>
             <h1>Cadastro de Usuários</h1>
@@ -108,20 +123,27 @@ export default function App() {
                         type="text"
                         placeholder='digite seu nome aqui'
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+
+                        onChange={handleNameChange}
                         required
                     />
+                    {!isNameValid && <p id='ooo' style={{ color: 'red', fontSize: '14px', margin: '5px 0 0 0' }}>Por favor, insira um nome com mais caracteres.</p>}
+                    
                 </div>
                 <div className='oi'>
                     <input
+                    id='ema'
                         type="text" 
                         className='p'
                         placeholder='digite seu email aqui'
                         value={email}
-                        onChange={handleChange}
+                        onChange={handleEmailChange}
                         required
                     />
-                    {!isValid && <p style={{ color: 'red', fontSize: '14px', margin: '5px 0 0 0' }}>Por favor, insira um endereço de email válido.</p>}
+                     {!isEmailValid && <p style={{ color: 'red', fontSize: '14px', margin: '5px 0 0 0' }}>Por favor, insira um endereço de email válido.</p>}
+                    
+                    
+                  
                 </div>
                 <div className='oi'>
                     <input
